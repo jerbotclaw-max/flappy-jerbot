@@ -272,11 +272,29 @@ function flap() {
   }
 }
 
-// Input listeners
-canvas.addEventListener('pointerdown', function(e) {
+// Input listeners — listen on multiple targets for max compatibility
+function handleInput(e) {
   e.preventDefault();
   flap();
-}, { passive: false });
+}
+
+// Canvas pointer (desktop + most mobile)
+canvas.addEventListener('pointerdown', handleInput, { passive: false });
+
+// Fallbacks for iOS Safari where pointerdown can be unreliable
+canvas.addEventListener('touchstart', handleInput, { passive: false });
+canvas.addEventListener('mousedown', handleInput);
+
+// Also listen on the overlay + container so taps anywhere on screen work
+document.getElementById('overlay').addEventListener('pointerdown', handleInput, { passive: false });
+document.getElementById('overlay').addEventListener('touchstart', handleInput, { passive: false });
+document.getElementById('gameContainer').addEventListener('pointerdown', handleInput, { passive: false });
+document.getElementById('gameContainer').addEventListener('touchstart', handleInput, { passive: false });
+
+// Catch-all on document for any dead zones
+document.addEventListener('click', function(e) {
+  if (state !== STATE.PLAYING) { flap(); }
+});
 
 document.addEventListener('keydown', function(e) {
   if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter') {
